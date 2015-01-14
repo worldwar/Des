@@ -1,5 +1,6 @@
 # ifndef DES_H
 # define DES_H
+class MainWidget;
 static int IP_Table[64] = { 58,50,42,34,26,18,10,2,
                             60,52,44,36,28,20,12,4,
                             62,54,46,38,30,22,14,6,
@@ -97,5 +98,5 @@ static int pc_2_table[48]={14,17,11,24, 1, 5,
                        { 2, 1,14, 7, 4,10, 8,13,15,12, 9, 0, 3, 5, 6,11}}
                       };
 
-int Do_DES(char* strSrc, char* strKey, char* strDest, char flag);
+int Do_DES(unsigned char* strSrc, unsigned char* strKey, unsigned char* strDest, char flag, MainWidget * widget = 0);
 #endif

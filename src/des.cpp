@@ -2,13 +2,33 @@
 #include <stdlib.h>
 #include <string.h>
 #include "des.h"
+#include "MainWidget.h"
+//int Do_DES(unsigned char* strSrc, unsigned char* strKey, unsigned char* strDest, char flag, MainWidget * widget = 0);
+int Do_3DES(unsigned char* strSrc, unsigned char* strKey, unsigned char* strDest, char flag); 
+int ByteToBCD(unsigned char* bytes, int count,unsigned char* strBCD);
+int BCDToByte(unsigned char* strBCD, int count, unsigned char* bytes);
+int Des_GenSubKey(unsigned char* strKey, unsigned char strSubKey[16][48+1]);
+int Des_F(unsigned char* strR, unsigned char* strK, unsigned char* strOut);
+int Des_IP(unsigned char* strIn, unsigned char* strOut);
+int Do_XOR(unsigned char* strSrc, int count, unsigned char* strDest);
+int Des_IP_1(unsigned char* strIn, unsigned char* strOut);
+int BitToByte(unsigned char* strBit, int count, unsigned char* bytes);
+int ByteToBit(unsigned char* bytes, int count, unsigned char* strBit);
+class MainWidget;
 
-int Do_DES(char* strSrc, char* strKey, char* strDest, char flag);
-int Do_3DES(char* strSrc, char* strKey, char* strDest, char flag); 
+int main2() {
+    unsigned char d[17];
+	char * src = "1111222233334444";
+    char * key = "1111000011110000";
+    Do_DES((unsigned char *)src, (unsigned char *)key, d, 'e');
+	d[16] = '\0';
+	printf("%s", d);
+	return 0;
+}
 
-int main(int argc, char** argv)
+int main1(int argc, char** argv)
 {
-  char src16[16+1],key16[16+1],key48[48+1],dest16[16+1];
+  unsigned char src16[16+1],key16[16+1],key48[48+1],dest16[16+1];
   if(argc != 3)
   {
     fprintf(stderr,"Usage: [%s -e|-d s|3]\n",argv[0]);
@@ -75,9 +95,9 @@ int main(int argc, char** argv)
       return 0;
 }
 
-int Do_DES(char* strSrc, char* strKey, char* strDest, char flag)
+int Do_DES(unsigned char* strSrc, unsigned char* strKey, unsigned char* strDest, char flag, MainWidget * widget)
 {
-   int i,j;
+   int i;
    unsigned char subKey[16][48+1],byte8[8+1],bits[64+1],strTmp[64+1];
    unsigned char L0[32+1],R0[32+1],Lx[32+1],Rx[32+1];
    if(!( flag == 'e' || flag == 'E' || flag == 'd' || flag == 'D'))
@@ -99,6 +119,9 @@ int Do_DES(char* strSrc, char* strKey, char* strDest, char flag)
 
      for(i=0;i<16;i++)
      {
+	   if (widget != 0) {
+		   widget->recieve(i, L0, R0);
+	   }
        memcpy(Lx,R0,32);
        Des_F(R0,subKey[i],Rx);
        Do_XOR(L0,32,Rx);
@@ -252,7 +275,7 @@ int Des_LS(unsigned char* strIn, int count, unsigned char* strOut)
 int Des_GenSubKey(unsigned char* strKey, unsigned char strSubKey[16][48+1])
 {
   unsigned char tmp[56+1],C0[28+1],D0[28+1],Cx[28+1],Dx[28+1];
-  int i,j;
+  int i;
   memset(tmp,0,sizeof(tmp));
   memset(C0,0,sizeof(C0));
   memset(D0,0,sizeof(D0));
@@ -326,7 +349,7 @@ int Des_S_Box(unsigned char* strIn, int nSBox, unsigned char* strOut)
 
 int Des_F(unsigned char* strR, unsigned char* strK, unsigned char* strOut)
 {
-  int i,j,k;
+  int i,j;
   unsigned char strAftE[48],strPreP[32],sbIn[8][6],sbOut[8][4];
   for(i=0;i<48;i++)
     strAftE[i] = strR[e_table[i]-1];
